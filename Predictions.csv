@@ -1,0 +1,101 @@
+Product,Branch,Branch Rating,Opening Stock,Predicted Stock
+Fridge,Ulsoor,3,5,15.875189
+Cooler,MG Road,1,5,10.99976
+Fridge,Jayanagar,3,5,15.000449
+Cooler,Kormangala,1,5,10.99945
+Chairs,Lalbagh,3,5,9.686811
+Mobile,Kormangala,5,5,4.0001936
+Fan,Ulsoor,2,6,20.000816
+Cooler,BTM,2,6,15.999748
+Grinder,BTM,5,6,6.000389
+Fan,Jayanagar,2,6,19.997658
+Cooler,Lalbagh,2,6,9.052574
+Grinder,Lalbagh,5,6,6.000048
+Chairs,Kormangala,1,6,8.715174
+Iron box,JP Nagar,4,6,4.999115
+Fan,MG Road,3,7,17.998646
+Cooler,HSR,3,7,6.001117
+Sofa,MG Road,1,7,4.999131
+Fan,Kormangala,3,7,18.00033
+Cooler,JP Nagar,3,7,5.992403
+Sofa,Kormangala,1,7,5.000146
+Chairs,Jayanagar,2,7,6.000278
+TV,Ulsoor,1,8,5.9999714
+Fridge,BTM,5,8,16.754534
+Washing machine,HSR,2,8,20.002642
+Grinder,HSR,3,8,13.996282
+TV,Jayanagar,1,8,5.999664
+Fridge,Lalbagh,5,8,19.998285
+Washing machine,JP Nagar,2,8,19.998854
+Grinder,JP Nagar,3,8,14.00325
+Iron box,Lalbagh,4,8,7.0017366
+Sofa,BTM,4,9,14.503866
+Sofa,Lalbagh,4,9,12.415524
+Chairs,JP Nagar,4,9,7.999909
+Mixer Grinder,HSR,4,10,17.400826
+Mixer Grinder,JP Nagar,4,10,17.998623
+Laptop,Jayanagar,1,10,9.00368
+TV,HSR,2,11,11.998984
+Light,Ulsoor,5,11,16.99999
+Mixer Grinder,MG Road,3,11,8.001921
+TV,JP Nagar,2,11,11.58459
+Light,Jayanagar,5,11,16.999096
+Mixer Grinder,Kormangala,3,11,8.000622
+Table,Kormangala,1,11,9.9996395
+Iron box,Jayanagar,4,11,9.9994545
+Fridge,HSR,3,12,13.82901
+Fan,HSR,2,12,14.657632
+Light,MG Road,4,12,11.999317
+Fridge,JP Nagar,3,12,14.004494
+Fan,JP Nagar,2,12,14.998501
+Light,Kormangala,4,12,12.0012
+Table,Lalbagh,3,12,10.998198
+Laptop,Lalbagh,1,12,10.999195
+Cooler,Ulsoor,1,13,7.0009923
+AC,BTM,4,13,16.581778
+Grinder,MG Road,5,13,16.00125
+Cooler,Jayanagar,1,13,6.999395
+AC,Lalbagh,4,13,16.99936
+Grinder,Kormangala,5,13,15.998116
+Table,Jayanagar,2,13,12.001316
+Fridge,MG Road,1,14,15.9984255
+Light,HSR,1,14,5.999392
+Mixer Grinder,BTM,1,14,8.00009
+Sofa,HSR,2,14,11.000655
+Fridge,Kormangala,1,14,16.002829
+Light,JP Nagar,1,14,6.0061817
+Mixer Grinder,Lalbagh,1,14,7.999159
+Sofa,JP Nagar,2,14,10.998322
+Laptop,JP Nagar,1,14,12.991221
+AC,Ulsoor,1,15,9.999869
+AC,Jayanagar,1,15,9.999769
+Table,JP Nagar,4,15,13.341836
+Light,BTM,5,16,11.000443
+Washing machine,MG Road,3,16,13.000471
+Washing machine,Ulsoor,4,16,15.308959
+Mixer Grinder,Ulsoor,3,16,18.000391
+Light,Lalbagh,5,16,10.9999275
+Washing machine,Kormangala,3,16,15.19254
+Washing machine,Jayanagar,4,16,14.841755
+Mixer Grinder,Jayanagar,3,16,17.996748
+Mobile,Lalbagh,5,16,15.002211
+TV,BTM,1,17,9.661496
+AC,MG Road,5,17,7.000066
+AC,HSR,2,17,12.000304
+TV,Lalbagh,1,17,8.698344
+AC,Kormangala,5,17,7.00078
+AC,JP Nagar,2,17,11.999516
+Mobile,JP Nagar,2,17,16.000835
+Laptop,Kormangala,2,17,16.001865
+Fan,BTM,3,19,11.0004635
+Washing machine,BTM,1,19,15.999215
+Sofa,Ulsoor,5,19,13.561284
+Fan,Lalbagh,3,19,10.999937
+Washing machine,Lalbagh,1,19,16.000343
+Sofa,Jayanagar,5,19,10.003147
+Mobile,Jayanagar,5,19,17.99776
+TV,MG Road,5,20,15.999493
+Grinder,Ulsoor,1,20,19.999788
+TV,Kormangala,5,20,15.999473
+Grinder,Jayanagar,1,20,20.000343
+Iron box,Kormangala,4,20,18.999418
