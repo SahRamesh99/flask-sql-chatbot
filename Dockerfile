@@ -1,5 +1,5 @@
 # Use an official lightweight Python image
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # Install system packages for build dependencies (Rust, ODBC, FAISS, etc.)
 RUN apt-get update && apt-get install -y \
@@ -33,4 +33,4 @@ EXPOSE 5000
 ENV PORT=5000
 
 # Run your app (adjust filename if not app.py)
-CMD ["python", "SQL_Chatbot_Flask 1.py"]
+CMD ["python", "SQL_Chatbot.py"]
