@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot File Upload</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    .chat-container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
+    .bot-response { margin-top: 20px; padding: 10px; background: #e0ffe0; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>Chatbot File Uploader</h2>
+    <input type="file" id="fileInput" />
+    <button onclick="uploadFile()">Upload</button>
+    <div class="bot-response" id="response"></div>
+  </div>
+
+  <script>
+    async function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        document.getElementById('response').innerText = "Please choose a file.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      document.getElementById('response').innerText = data.message || data.error;
+    }
+  </script>
+</body>
+</html>

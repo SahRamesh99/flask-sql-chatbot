@@ -200,6 +200,15 @@
     th {
       background-color: #f2f2f2;
     }
+
+    .uploaded-file-link {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .uploaded-file-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -221,12 +230,36 @@
     {% if files_uploaded %}
     <div class="files">
       <strong>Uploaded Files:</strong>
-      <ul>
+      <ul style="list-style-type: none; padding-left: 1rem; margin-top: 0.5rem;">
         {% for file in files_uploaded %}
-        <li>{{ file }}</li>
+        <li style="color: #0074d9; font-size: 18px; text-decoration: none; cursor: default;">{{ file }}</li>
         {% endfor %}
       </ul>
     </div>
+    <div id="selected-file-name" style="font-weight:bold; color:#007bff; margin-bottom:10px;"></div>
+    <script>
+      let selectedFileName = "{{ files_uploaded[0] if files_uploaded else '' }}";
+      function selectFile(fileName) {
+        selectedFileName = fileName;
+        document.getElementById('selected-file-name').innerText = 'Selected File: ' + fileName;
+      }
+      window.onload = function () {
+        if (selectedFileName) {
+          document.getElementById('selected-file-name').innerText = 'Selected File: ' + selectedFileName;
+        }
+        // ...existing code for chat scroll and markdown rendering...
+        const chat = document.getElementById("chat-window");
+        if (chat) {
+          const messages = chat.querySelectorAll('.msg-text');
+          messages.forEach(el => {
+            if (el.dataset.role === "assistant") {
+              el.innerHTML = marked.parse(el.textContent);
+            }
+          });
+          chat.scrollTop = chat.scrollHeight;
+        }
+      };
+    </script>
     {% endif %}
 
     {% if chat_history %}
@@ -237,7 +270,7 @@
           <div class="msg-text" data-role="{{ message.role }}" id="msg-{{ loop.index0 }}" data-md="{{ message.content|e }}">{{ message.content }}</div>
           {% if message.role == "assistant" and '|' in message.content %}
           <span class="download-table" title="Download table as Excel" onclick="downloadTableAsExcel('msg-{{ loop.index0 }}')"
-                style="cursor:pointer; margin-left:10px; font-size:18px;">&#128190;</span>
+                style="cursor:pointer; margin-left:10px; font-size:18px;">⬇️</span>
           {% endif %}
         </div>
       </div>
@@ -305,78 +338,91 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
-    function parseMarkdownTable(md) {
+    function parseAllMarkdownTables(md) {
       const lines = md.split('\n');
-      let tableStart = -1;
-      let tableEnd = -1;
-
-      // Find the start of the first Markdown table (header + separator)
-      for (let i = 0; i < lines.length - 1; i++) {
+      const tables = [];
+      let i = 0;
+      while (i < lines.length - 1) {
         const header = lines[i].trim();
         const separator = lines[i + 1].trim();
-        if (
-          /^\|(.+)\|$/.test(header) &&
-          /^(\|\s*:?-+:?\s*)+\|$/.test(separator)
-        ) {
-          tableStart = i;
-          break;
+        if (/^\|(.+)\|$/.test(header) && /^(\|\s*:?-+:?\s*)+\|$/.test(separator)) {
+          // Found table start
+          let tableStart = i;
+          let tableEnd = i + 2;
+          while (tableEnd < lines.length && /^\|(.+)\|$/.test(lines[tableEnd].trim())) {
+            tableEnd++;
+          }
+          const tableLines = lines.slice(tableStart, tableEnd);
+          // Remove separator row(s)
+          const headerRow = tableLines[0];
+          const filtered = [headerRow];
+          for (let j = 2; j < tableLines.length; j++) { // skip separator at [1]
+            const row = tableLines[j].trim();
+            if (row === headerRow) continue;
+            const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
+            if (
+              cells.every(cell => cell === '' || /^-+$/.test(cell)) ||
+              cells[0].toLowerCase() === 'references' ||
+              cells[0] === '---'
+            ) continue;
+            filtered.push(row);
+          }
+          tables.push(filtered.map(row =>
+            row.split('|').slice(1, -1).map(cell =>
+              cell.replace(/\\+/g, '').replace(/`/g, '').replace(/\*/g, '').trim()
+            )
+          ));
+          i = tableEnd;
+        } else {
+          i++;
         }
       }
-      if (tableStart === -1) return null;
-
-      // Find the end of the table (first non-table line after start)
-      for (let i = tableStart + 2; i <= lines.length; i++) {
-        if (i === lines.length || !/^\|(.+)\|$/.test(lines[i].trim())) {
-          tableEnd = i;
-          break;
-        }
-      }
-
-      // Extract table lines
-      const tableLines = lines.slice(tableStart, tableEnd);
-
-      // Remove separator row(s)
-      const header = tableLines[0];
-      const filtered = [header];
-      for (let i = 2; i < tableLines.length; i++) { // skip separator at [1]
-        const row = tableLines[i].trim();
-        if (row === header) continue;
-        const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
-        // Remove rows that are empty, dashes, or "References"
-        if (
-          cells.every(cell => cell === '' || /^-+$/.test(cell)) ||
-          cells[0].toLowerCase() === 'references' ||
-          cells[0] === '---'
-        ) continue;
-        filtered.push(row);
-      }
-
-      // Parse rows
-      return filtered.map(row => row.split('|').slice(1, -1).map(cell => cell.trim()));
+      return tables;
     }
 
     function downloadTableAsExcel(msgId) {
       const el = document.getElementById(msgId);
       if (!el) return;
       const md = el.getAttribute('data-md');
-      const table = parseMarkdownTable(md);
-      if (!table || table.length < 2) {
+      const tables = parseAllMarkdownTables(md);
+      if (!tables.length) {
         alert("No table found in the assistant's response.");
         return;
       }
-      const csv = table.map(row =>
-        row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')
-      ).join('\r\n');
-
+      // Get the file name from the Markdown heading if present
+      let fileName = 'assistant_tables.csv';
+      let fileHeading = '';
+      const fileHeadingMatch = md.match(/### File: ([^\n]+)/);
+      if (fileHeadingMatch && fileHeadingMatch[1]) {
+        fileName = fileHeadingMatch[1].trim().replace(/\s+/g, '_').replace(/[^\w.]/g, '') + '.csv';
+        fileHeading = 'File: ' + fileHeadingMatch[1].trim();
+      }
+      let csv = '';
+      if (fileHeading) {
+        csv += fileHeading + '\r\n';
+      }
+      tables.forEach((table, idx) => {
+        csv += table.map(row =>
+          row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')
+        ).join('\r\n');
+        if (idx < tables.length - 1) csv += '\r\n\r\n'; // blank line between tables
+      });
       const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'assistant_table.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      }
     }
   </script>
 </body>

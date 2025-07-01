@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataViz Chatbot</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        textarea, input[type=text] { width: 100%; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; }
+        .code-block { background: #f4f4f4; padding: 10px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>📊 Data Visualization Chatbot</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="datafile" accept=".csv,.xlsx"><br>
+        <input type="text" name="user_input" placeholder="Ask your question about the data" style="width:80%">
+        <input type="submit" value="Generate Plot">
+    </form>
+
+    {% if code_output %}
+        <h2>Generated Code</h2>
+        <div class="code-block">{{ code_output }}</div>
+    {% endif %}
+
+    {% if plot_generated %}
+        <h2>Generated Plot</h2>
+        <img src="{{ url_for('static', filename='plot.png') }}" width="600">
+    {% endif %}
+
+    {% if error_msg %}
+        <h2 style="color:red;">{{ error_msg }}</h2>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Resume Analyser</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafd;
+        }
+
+        .navbar {
+            background: #2563eb;
+            color: #fff;
+            padding: 18px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            z-index: 200;
+            box-sizing: border-box;
+        }
+
+        .brand {
+            position: absolute;
+            left: 40px; /* matches navbar padding */
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .navbar-inner {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .navbar-inner h1 {
+            margin: 0;
+            flex: 1 1 auto;
+            text-align: center;
+            width: 100%;
+             /* Black font border */
+            text-stroke: 1px #000;
+        }
+
+        .main-layout {
+            display: flex;
+            height: 100vh;
+            margin-top: 70px;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #f7f7f7;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .sidebar-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .custom-file-btn {
+            padding: 15px;
+            background: linear-gradient(90deg, #6366f1 0%, #a21caf 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(80, 80, 200, 0.15);
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .upload-form p {
+            font-size: 0.85em;
+            font-style: italic;
+            color: #333;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .sidebar-files {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .sidebar-files ul {
+            padding-left: 16px;
+            margin: 0;
+            list-style-type: disc;
+        }
+
+        .sidebar-files li {
+            font-size: 0.85em;
+            font-style: italic;
+            color: #4f46e5;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-bottom: 160px;
+        }
+
+        .main-container {
+            flex: 1 1 auto;
+            position: relative;
+            overflow-y: auto;
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: url('https://tse4.mm.bing.net/th/id/OIP.ICIWtJ70HQ75h1KfyqIiSwHaF0?rs=1&pid=ImgDetMain');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: blur(3px);
+            opacity: 0.8;
+            pointer-events: none;
+            border-radius: 12px;
+        }
+
+        .main-container > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-section h1 {
+            font-size: 2.5em;
+            color: #6d28d9;
+            margin: 40px 0;
+            text-align: center;
+            -webkit-text-stroke: 1px #000; /* Black font border */
+            text-stroke: 1px #000;          /* For future compatibility */
+        }
+
+        .full-width-section {
+            width: 100%;
+            padding: 0 2rem;
+        }
+
+        #chat-history {
+            overflow-y: auto;
+            max-height: calc(100vh - 320px); /* adjust as needed */
+            padding-right: 8px;
+            padding-bottom: 20px;
+        }
+
+        .qa-pair {
+            margin-bottom: 24px;
+            padding: 18px 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(80,80,200,0.06);
+        }
+
+        .chat-question {
+            color: #7c3aed;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .chat-answer {
+            color: #444;
+            margin-left: 12px;
+        }
+
+        #ask-bar-container {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 260px;
+            width: auto;
+            background: #fff;
+            box-shadow: 0 -2px 16px rgba(80,80,200,0.08);
+            padding: 18px 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #ask-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        #ask-form input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        #ask-form button {
+            padding: 14px 28px;
+            background: linear-gradient(90deg, #6366f1 0%, #a21caf 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        #response-box {
+            background: #fff;
+            margin: 0 auto 20px auto;
+            padding: 16px 24px;
+            font-size: 1.05em;
+            color: #4f46e5;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(80,80,200,0.1);
+            display: none;
+            width: 100%;
+            max-width: 100%;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .clear-button {
+            background: transparent;
+            color: #6366f1;
+            border: none;
+            font-weight: bold;
+            font-size: 1em;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .clear-button::after {
+            content: '';
+            display: block;
+            height: 2px;
+            background: #6366f1;
+            transition: width 0.3s ease;
+            width: 0;
+            margin-top: 4px;
+        }
+
+        .clear-button:hover::after {
+            width: 100%;
+        }
+        .clear-files-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 10px;
+            margin-top: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: bold;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="brand">
+        <img src="data:image/jpeg;base64,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" alt="Analyzer.CV Logo" width="120">
+    </div>
+    <div class="navbar-inner">
+        <h1 style="margin: 0;">AI Resume Analyser</h1>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <form method="post" enctype="multipart/form-data" id="upload-form" class="upload-form">
+                <input type="file" name="documents" id="file-upload" multiple required style="display: none;">
+                <label for="file-upload" class="custom-file-btn">Choose Files</label>
+                <p>or drop files here</p>
+            </form>
+        </div>
+        <div class="sidebar-files">
+            {% if files_uploaded and files_uploaded|length > 0 %}
+            <strong style="margin-bottom: 8px; ">Uploaded Files:</strong>
+            <ul>
+                {% for file in files_uploaded %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% if files_uploaded and files_uploaded|length > 0 %}
+        <div class="clear-files-wrapper">
+            <a href="/clear_files" class="clear-button">Clear Files</a>
+        </div>
+        {% endif %}
+
+
+
+    </div>
+    <div class="container">
+        <div class="main-container">
+            <div class="main-section">
+
+            </div>
+            {% if files_uploaded %}
+            <div class="full-width-section">
+                <div id="response-box">
+                    <span id="response-content"></span>
+                </div>
+                <div id="chat-history">
+                    {% for chat in chat_history %}
+                        {% if chat.role == 'user' %}
+                            <div class="qa-pair">
+                                <div class="chat-question"><strong>Q:</strong> {{ chat.content|safe }}</div>
+                                {% if loop.index < chat_history|length and chat_history[loop.index].role == 'assistant' %}
+                                    <div class="chat-answer"><strong>A:</strong> {{ chat_history[loop.index].content|safe }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<div id="ask-bar-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="ask-bar-label">Ask a Question:</span>
+        <!-- Clear Chat (Only Clears Chat) -->
+        <a href="/clear_chat" class="clear-button" style="width:auto; margin:0 0 0 16px; padding:10px 24px; font-size:1em;">Clear Chat</a>
+
+    </div>
+    <form id="ask-form">
+        <input type="text" id="question" name="question" required placeholder="Type your question...">
+        <button type="submit">Ask</button>
+    </form>
+</div>
+<script>
+    document.getElementById('ask-form')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const question = document.getElementById('question').value;
+        const responseBox = document.getElementById('response-box');
+        const responseContent = document.getElementById('response-content');
+        responseContent.innerHTML = "Thinking...";
+        responseBox.style.display = "block";
+        const resp = await fetch('/ask', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({question})
+        });
+        const data = await resp.json();
+        responseContent.innerHTML = data.answer;
+        // Remove or comment out the reload below:
+         setTimeout(() => window.location.reload(), 700);
+    });
+
+    document.getElementById('file-upload').addEventListener('change', function() {
+        document.getElementById('upload-form').submit();
+    });
+</script>
+</body>
+</html>
